@@ -3,7 +3,6 @@
     <div class="page__hd">
       <user-card-component :userCard="userInfo" @link-on-click="linkOnClick" @tab-on-click='tabOnClick'></user-card-component>
     </div>
-
     <div class="index-link">
       <div class="weui-media-box weui-media-box_small-appmsg index-link-container">
         <div class="weui-cells weui-cells_in-small-appmsg">
@@ -86,18 +85,16 @@ export default {
                     type: 3
                 }
             ],
+            showShareBtn : false
         };
     },
-    computed: {
-        userInfo() {
-            return store.state.userInfo;
-        },
-        showShareBtn () {
-            return store.state.inSendBtn;
-        }
-    },
     mounted() {
-        
+        console.log(this.userInfo)
+    },
+    computed: {
+        userInfo () {
+            return store.state.userInfo
+        }
     },
     onPullDownRefresh() {
         this.getUserInfo();
@@ -123,23 +120,14 @@ export default {
     methods: {
         async getUserInfo() {
             const _this = this;
-            try {
-                const userInfo = await api.wxGetUserInfo();
-                const openId = store.state.openId;
-                var par = {
-                    strOpenId: openId,
-                    strName: userInfo.userInfo.nickName,
-                    strAvatarUrl: userInfo.userInfo.avatarUrl
+            const openId = store.state.openId;
+            let par = {
+                    strOpenId: openId
                 };
-
-                var data = await api.post_login(par);
-                if (data.success) {
-                    wx.setStorageSync("userInfo", data.data);
-                    store.commit("inUserInfo");
-                }
-            } catch (ex) {
-                // 拒绝授权
-            }
+            const data = await api.post_login(par);
+                    store.commit("inUserInfo", data);
+            console.log(this.userInfo)
+            _this.showShareBtn = store.state.inSendBtn;
             // 停止下拉刷新
             wx.stopPullDownRefresh();
         },
@@ -183,9 +171,7 @@ export default {
         }
     },
     watch: {
-        "store.state.userInfo": function() {
-            console.log("11");
-        }
+        
     }
 };
 </script>

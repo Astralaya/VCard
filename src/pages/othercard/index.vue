@@ -90,18 +90,16 @@
 					strOpenId_c : this.userInfo.strOpenId,
 					strOpenId_b   : otherUser.strOpenId
 				}
-
+	
 				wx.showLoading({title:'加载中'})
 				var data = await api.get_otherCard(par);
 
-				if(data.success) {
-					this.cardInfo = data.data
-					data.data.images.map(item => {
-						var item = item.map
-						var urlPath = item.strUrl + '/' + item.strFilePath + '/'  + item.strFileName
-						_this.files.push(urlPath)
-					})
-				}
+				this.cardInfo = data
+				data.images.map(item => {
+					var item = item.map
+					var urlPath = item.strUrl + '/' + item.strFilePath + '/'  + item.strFileName
+					_this.files.push(urlPath)
+				})
 				wx.hideLoading()
 				wx.stopPullDownRefresh()
 
@@ -120,9 +118,11 @@
 						strOpenId_c: this.userInfo.strOpenId,
 						strOpenId_b: this.cardInfo.strOpenId
 					}
-					var data = await api.post_like(par)
-					if(data.success) {
+					try {
+						var data = await api.post_like(par)
 						this.getUserInfo()
+					} catch (error) {
+						
 					}
 				},
 				addPhoneContact () {

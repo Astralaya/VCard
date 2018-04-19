@@ -82,7 +82,7 @@ export default {
     async getData() {
       if(this.activeIndex === 1) return
       var res = await api.get_company_list({'@rowIndex': this.rowIndex1++})
-      if(res.success) api.util_update_list(res.data , this.newCompanyList)
+      api.util_update_list(res , this.newCompanyList)
       wx.stopPullDownRefresh()
     }
   }

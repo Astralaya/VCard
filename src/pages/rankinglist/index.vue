@@ -84,7 +84,6 @@
 		methods: {
 			async getData() {
 				wx.showLoading({title:'加载中'})
-
 				const _this = this;
 				const par = {
 					type: this.type,
@@ -93,12 +92,13 @@
 				const data = await api.get_rankingList(par)
 				wx.hideLoading()
 				wx.stopPullDownRefresh()
-				if(data.success) {
-					data.data.map((item) => {
+				try {
+					data.map((item) => {
 						let cardInfo = item.map;
 						_this.rankingList.push(cardInfo)
 					})
-					this.intCount = parseInt(data.data.intCount)
+				} catch (error) {
+					
 				}
 			},
 			resizeType( type ) {

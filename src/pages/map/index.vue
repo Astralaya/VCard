@@ -67,8 +67,7 @@ export default {
         '@strOpenId_c' : _this.strOpenId
       }
       var data = await api.get_card_List(par)
-      
-      var res = data.data.data
+      var res = data.data
       res.map(item => {
         var item = item.map
         if(item.intLat && item.intLng && item.strOpenId != _this.userInfo.strOpenId) {

@@ -2,7 +2,7 @@
   <div class="page">
     <div class="weui-cells__title"></div>
     <div class="weui-cells weui-cells_after-title">
-      <navigator url="" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
+      <navigator url="" class="weui-cell weui-cell_access" hover-class="weui-cell_active" @click="modifiyHead">
         <div class="weui-cell__bd">头像</div>
         <div class="weui-cell__ft ">
           <image class="weui-cell__ft modifiy-userAvatar" :src="userInfo.strAvatarUrl" />
@@ -105,7 +105,8 @@ export default {
   data() {
     return {
       userInfo: {},
-      files: []
+      files: [],
+      saveInfo: {}
     };
   },
   computed: {},
@@ -123,29 +124,24 @@ export default {
       };
       try {
         var data = await api.Get_UserInfo(par);
-        if (data.success) {
-          _this.userInfo = data.data;
-          data.data.images.map(item => {
-            var item = item.map;
-            // var urlPath = item.strUrl + '/' + item.strFilePath + '/'  + item.strOpenId
-            _this.files.push(item);
-          });
-          // _this.files =
-        }
-      } catch (ex) {
-        console.log(ex);
-      }
+        _this.userInfo = data;
+        data.images.map(item => {
+          var item = item.map;
+          _this.files.push(item);
+        });
+      } catch (error) {}
     },
-    chooseImage(id, del) {
+    chooseImage() {
       var _this = this;
+      console.log(this.files)
       wx.chooseImage({
+        count: 8,
         sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
         sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
         success: function(res) {
           res.tempFilePaths.map(item => {
-            _this.uploaderFiles(item, id, del);
+            _this.uploaderFiles(item);
           });
-          // _this.uploaderFiles(res.tempFilePaths , id)
         },
         fail: function() {},
         complete: function() {}
@@ -155,7 +151,7 @@ export default {
       const _this = this;
       var par = {
         strOpenId: this.userInfo.strOpenId,
-        intType: 1
+        intType: 2
       };
       if (strId != undefined && typeof strId != "object") {
         par = Object.assign(par, { strId: strId });
@@ -174,17 +170,18 @@ export default {
           if (strId) {
             _this.files.map((item, index) => {
               if (item.strId === strId) {
-                _this.files[index].imgUrl = res;
+                _this.files[index].imgUrl = res.imgUrl;
               }
             });
           } else {
-            _this.files = _this.files.concat(res);
+            _this.files = _this.files.concat(res.imgUrl);
           }
         });
     },
     async delImage(par) {
       var res = await api.del_Image(par);
       if (res.success) {
+        console.log(this.files);
       } else {
       }
       api.wxToast({ title: res.msg });
@@ -199,27 +196,33 @@ export default {
         urls: arr // 需要预览的图片http链接列表
       });
     },
-
     async saveForm() {
-      var par = this.userInfo;
-      if (par.strMobile != "" && !api.isPoneAvailable(par.strMobile)) {
+      var par = (this.saveInfo = {});
+      if (
+        this.userInfo.strMobile != "" &&
+        !api.isPoneAvailable(this.userInfo.strMobile)
+      ) {
         api.wxToast({ title: "手机号不正确" });
         return;
       }
+      for (const key in this.userInfo) {
+        if (this.userInfo[key] != "" && key != "images") {
+          this.saveInfo[key] = this.userInfo[key];
+        }
+      }
       wx.showLoading({ title: "正在保存" });
-      var res = await api.post_login(par);
-      console.log(res);
-      wx.hideLoading();
-      if (res.success) {
+      try {
+        var res = await api.post_login(par);
+        wx.hideLoading();
         api.wxToast({ title: "保存成功", icon: "success" });
-        this.userInfo = res.data;
-        wx.setStorageSync("userInfo", res.data);
-        store.commit("inUserInfo");
+        store.commit("inUserInfo", res);
         this.$router.open({
           title: "首页",
           url: "../mine/mine",
           type: "TAB"
         });
+      } catch (error) {
+        console.log(error);
       }
     },
     longtap(item) {
@@ -237,6 +240,38 @@ export default {
           _this.uploaderFiles(undefined, item.id, true);
         }
       });
+    },
+    modifiyHead() {
+      var _this = this;
+      wx.chooseImage({
+        count: 1,
+        sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
+        sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
+        success: function(res) {
+          // res.tempFilePaths.map(item => {
+            // _this.userInfo.strAvatarUrl = res.tempFilePaths[0];
+          _this.upDateHead(res.tempFilePaths[0]);
+          // });
+        },
+        fail: function() {},
+        complete: function() {}
+      });
+    },
+    upDateHead(localImage) {
+      const _this = this;
+      var par = {
+        strOpenId: this.userInfo.strOpenId,
+        intType: 1
+      };
+      api
+        .wxUploadFile({
+          filePath: localImage,
+          formData: par
+        })
+        .then(res => {
+          console.log(res)
+          _this.userInfo.strAvatarUrl = res.imgUrl;
+        });
     }
   }
 };

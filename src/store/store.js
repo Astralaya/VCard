@@ -15,21 +15,27 @@ const store = new Vuex.Store({
     sendBtnShow: false
   },
   mutations: {
-    inUserInfo: (state) => {
+    inUserInfo: (state , data) => {
       const obj = state
-      obj.userInfo = wx.getStorageSync('userInfo') || {}
+      if(data != '' && data != undefined) {
+        wx.setStorageSync("userInfo", data);
+      }
+      obj.userInfo = data || wx.getStorageSync('userInfo')
     },
     inWxInfo: (state) => {
       const obj = state
       
     },
-    inOpenId: (state) => {
+    inOpenId: (state , data) => {
       const obj = state
-      obj.openId = wx.getStorageSync('openId') || ''
+      if(data != '' && data != undefined) {
+        wx.setStorageSync("openId", data);
+      }
+      obj.openId = data || wx.getStorageSync('openId')
     },
-    inSendBtn: (state) => {
+    inSendBtn: (state , data ) => {
       const obj = state
-      obj.inSendBtn = wx.getStorageSync('sendBtnShow') || false
+      obj.inSendBtn = data
     }
   }
 })

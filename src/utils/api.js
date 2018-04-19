@@ -3,7 +3,6 @@ import axios from './axios'
 let api = {
   // 打开地图
   wxOpenLocation: (options) => {
-    console.log(options)
     wx.openLocation({
       name: options.name || '',
       address: options.address || '',
@@ -27,18 +26,21 @@ let api = {
       }
     })
   },
-  // intType = 1 (修改用户名片的图片) ,传strId是修改，不传是新增
+  //  ,传strId是修改，不传是新增 intType : 1 头像 2用户展示图片 
   wxUploadFile: (options) => {
     return new Promise((resolve, reject) => {
+      
       if (options.filePath) {
         wx.uploadFile({
-          url: 'https://yj.kiy.cn/Upload/UpLoadImgs',
+          url: axios.domain + '/Upload/UpLoadImgs',
           filePath: options.filePath,
           name: 'file',
           formData: options.formData,
           success: res => {
+            console.log(res)
+            var res = JSON.parse(res.data)
             if (res.success) {
-              resolve(res.data[0].map.imgUrl)
+              resolve(res.data)
             } else {
               reject(data)
             }
@@ -151,7 +153,7 @@ let api = {
       }
     })
   },
-  // 删除图片 , 需要穿'rowState' : 'D' 和 strId ， intType
+  // 删除图片 , 需要穿'rowState' : 'D' 和 strId ， intType : 1 头像 2用户展示图片 
   del_Image: (data) => axios.postApiData({
     data,
     url: '/Upload/UpLoadImgs'
@@ -170,7 +172,7 @@ let api = {
   post_login: (data) => axios.getAjaxData(data, undefined, '7b950fca-716c-46e2-8a2f-ae753fb72bfe'),
   // 排行榜
   get_rankingList: (data) => axios.getAjaxData(data, undefined, 'fc2d9e61-0139-4785-a2c8-ffbd7b8127ec'),
-  // 查看他人名片 strOpenId_c 当前用户openId 	, strOpenId_b 操作对象
+  // 查看他人名片 strOpenId_c 当前用户openId(本人) 	, strOpenId_b 操作对象
   get_otherCard: (data) => axios.getAjaxData(data, undefined, '82affbc4-f8bd-429b-9ea7-5c6e2067eda5'),
   // 点赞收藏
   post_like: (data) => axios.getAjaxData(data, undefined, '0ebc66ee-9479-43a1-8bfd-54ba70bff33b'),

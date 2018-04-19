@@ -20,7 +20,7 @@
     </div>
 
     <div class="page__bd" style="margin-top: 5px;">
-      <div class="weui-cells weui-cells_after-title" v-for="(item , index) in list" >
+      <div class="weui-cells weui-cells_after-title" v-for="(item , index) in list" :key="index">
         <div  class=" weui-cell_access" hover-class="weui-cell_active">
           <div class="weui-cell">
             <div class="weui-cell__hd" style="position: relative;margin-right: 10px;" @click="goOtherCard(item)">
@@ -60,6 +60,9 @@
       this.list = []
       this.getData()
     },
+    onReachBottom () {
+      this.loadMore()
+    },
     methods: {
       showInput() {
         this.inputShowed = true;
@@ -80,17 +83,18 @@
         var par = {
           '@type': 3,
           '@rowIndex': this.rowIndex,
-          '@strOpenId_b' : userInfo.strOpenId,
+          '@strOpenId_c' : userInfo.strOpenId,
         }
         
         var data = await api.get_card_List(par)
-        if(data.success) {
-          var list = data.data.data
+        try {
+          var list = data.data
           list.map(item => {
             _this.list.push(item.map)
           })
-          console.log(_this.list)
           this.intCount = parseInt(data.data.intCount)
+        } catch (error) {
+          
         }
       },
       loadMore () {
@@ -123,6 +127,7 @@
       }
     },
     onPullDownRefresh () {
+      this.list = []
       this.getData()
     }
   }

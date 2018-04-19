@@ -41,12 +41,12 @@ export default {
       wx.showLoading({title: '正在登录网页'})
       var data = await api.get_author_login(par)
       wx.hideLoading()
-      if(data.success) {
+      try {
         api.wxToast({title:'登录网页成功' , icon: 'success'})  
         setTimeout(function() {
           _this.backHome()
         } , 2000)
-      } else {
+      } catch (error) {
         api.wxToast({title:'登录网页失败' }) 
       }
     }, 
