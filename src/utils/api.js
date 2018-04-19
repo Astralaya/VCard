@@ -1,6 +1,15 @@
 import axios from './axios'
 
 let api = {
+  //获取图片信息 
+  wxGetImageInfo : (options) => {
+    return new Promise((resolve , reject) => {
+      wx.getImageInfo({
+        src: options.src,
+        success: res => resolve(res)
+      })
+    })
+  },
   // 打开地图
   wxOpenLocation: (options) => {
     wx.openLocation({
@@ -9,7 +18,6 @@ let api = {
       latitude: options.latitude,
       longitude: options.longitude,
       scale: options.scale || 28,
-
     })
   },
   // 获取权限

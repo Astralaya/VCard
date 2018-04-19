@@ -131,11 +131,14 @@ export default {
         });
       } catch (error) {}
     },
-    chooseImage() {
+    chooseImage(strId) {
       var _this = this;
-      console.log(this.files)
+      var count = 8 - this.files.length;
+      if(strId) {
+        count = 1
+      }
       wx.chooseImage({
-        count: 8,
+        count: count,
         sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
         sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
         success: function(res) {
@@ -248,10 +251,7 @@ export default {
         sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
         sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
         success: function(res) {
-          // res.tempFilePaths.map(item => {
-            // _this.userInfo.strAvatarUrl = res.tempFilePaths[0];
           _this.upDateHead(res.tempFilePaths[0]);
-          // });
         },
         fail: function() {},
         complete: function() {}

@@ -28,7 +28,7 @@
       <div class="text-banner-content">
         <div class="text-banner-title">恭喜
           <text style="color:#7f81f8"> # {{newInitCompany}} # </text>入驻</div>
-        <div class="text-banner-btn" @click="goCompanyInfo">欢迎入驻</div>
+        <div class="text-banner-btn" @click="goCompanyInfo">目录</div>
       </div>
     </div>
 

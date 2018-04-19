@@ -62,12 +62,14 @@ export default {
       const _this = this
       _this.markers = []
       var par = {
-        '@type': 1,
+        'type' : 1,
         '@rowIndex': 1,
-        '@strOpenId_c' : _this.strOpenId
+        '@pageSize' : 1000000
       }
-      var data = await api.get_card_List(par)
+      var data = await api.get_rankingList(par)
+      console.log(data)
       var res = data.data
+      
       res.map(item => {
         var item = item.map
         if(item.intLat && item.intLng && item.strOpenId != _this.userInfo.strOpenId) {
