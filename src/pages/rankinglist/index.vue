@@ -89,7 +89,6 @@
 					type: this.type,
 					$rowIndex: this.rowIndex
 				}
-				console.log(par)
 				const data = await api.get_rankingList(par)
 				wx.hideLoading()
 				wx.stopPullDownRefresh()

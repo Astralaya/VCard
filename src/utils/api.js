@@ -37,7 +37,7 @@ let api = {
   //  ,传strId是修改，不传是新增 intType : 1 头像 2用户展示图片 
   wxUploadFile: (options) => {
     return new Promise((resolve, reject) => {
-      
+      console.log(options)
       if (options.filePath) {
         wx.uploadFile({
           url: axios.domain + '/Upload/UpLoadImgs',
@@ -50,7 +50,10 @@ let api = {
             if (res.success) {
               resolve(res.data)
             } else {
-              reject(data)
+              wx.showToast({
+                title: res.msg,
+                icon: 'none'
+              })
             }
           },
           fail: res => reject(res)

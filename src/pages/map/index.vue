@@ -66,9 +66,7 @@ export default {
         '@rowIndex': 1,
         '@pageSize' : 1000000
       }
-      var data = await api.get_rankingList(par)
-      console.log(data)
-      var res = data.data
+      var res = await api.get_rankingList(par)
       
       res.map(item => {
         var item = item.map

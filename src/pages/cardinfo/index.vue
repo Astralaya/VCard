@@ -269,7 +269,6 @@ export default {
           formData: par
         })
         .then(res => {
-          console.log(res)
           _this.userInfo.strAvatarUrl = res.imgUrl;
         });
     }

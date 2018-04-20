@@ -10,11 +10,13 @@ axios.domain = domain
 
 axios.postApiData = (options) => new Promise((resolve, reject) => {
 	console.log(options.data)
+	console.log(domain + options.url)
 	  wx.request({
 		url: domain + options.url,
 	    method: options.method || 'POST',
 	    data: options.data ,
 	    success: res => {
+			console.log(res.data)
 	    	resolve(res.data)
 	    },
 	    fail: res => {
@@ -28,6 +30,7 @@ axios.getAjaxData = (param , strMethod , uid) => new Promise((resolve , reject) 
 	const data = Object.assign({uid : uid || '217141a5-01d0-4696-9500-ae2d82a8cb4c'},{param : param || paramData})
 	const en = encode(JSON.stringify(data))
 	console.log(JSON.stringify(data))
+	console.log(domain)
 	wx.request({
 		url : domain + '/Mobile/GetData/GetAjaxData',
 		method: 'POST',
@@ -36,6 +39,7 @@ axios.getAjaxData = (param , strMethod , uid) => new Promise((resolve , reject) 
 			try {
 				// resolve只返回数据，不返回其他
 				if (res.data.success) {
+					console.log(res.data.data)
 					resolve(res.data.data)
 				} else {
 					wx.showToast({
@@ -45,15 +49,15 @@ axios.getAjaxData = (param , strMethod , uid) => new Promise((resolve , reject) 
 					reject(res.data)
 				}
 			} catch (error) {
+				console.log(error)
 				wx.showToast({
 					title: res.data.map.errMsg,
 					icon: 'none'
 				})
 			}
-			
-	    	
 	    },
 	    fail: res => {
+			console.log(res)
 			wx.showToast({
 				title: res.msg,
 				icon: 'none'

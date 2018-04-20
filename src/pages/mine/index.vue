@@ -29,14 +29,14 @@
         </div>
 
         <div class="weui-btn-area sub">
-            <button class="weui-btn btn-defalut" hover-class="btn-hover" @click="onShare">递名片</button>
+            <button class="weui-btn btn-defalut" hover-class="btn-hover" @click="onShare">分享</button>
         </div>
 
         <div class="weui-cells__title" style="height: 20rpx;"></div>
 
         <view class="mask" @click="preventTouchMove" v-if="showModal"></view>
         <div class="modalDlg" v-if="showModal">
-            <image :src='shareImagePath' mode='widthFix'></image>
+            <image :src='shareImagePath' mode='widthFix' @click="onPreview"></image>
         </div>
         <canvas canvas-id="myCanvas" style="width:545px;height:771px"></canvas>
     </div>
@@ -82,7 +82,7 @@ export default {
     };
   },
   mounted() {
-    this.onShow();
+      this.onShow();
   },
   computed: {
     userInfo() {
@@ -156,9 +156,10 @@ export default {
     },
     onShare() {
       
-      this.onShow();
+      this.onshareImage();
     },
     onshareImage () {
+        var _this =this;
         this.showModal = true;
         wx.canvasToTempFilePath({
             x: 0,
@@ -178,25 +179,34 @@ export default {
     },
     onShow() {
       var _this = this;
-      api.wxGetImageInfo({ src: this.userInfo.strAvatarUrl }).then(res => {
         const ctx = wx.createCanvasContext("myCanvas");
-        ctx.drawImage('https://raw.githubusercontent.com/JaimeCheng/canvasShareImg/master/images/qrcode.jpg', 158, 190, 210, 210);
-        ctx.drawImage('https://raw.githubusercontent.com/JaimeCheng/canvasShareImg/master/images/qrbg.png', 0, 0, 545, 771);
+      
+        ctx.drawImage('../../static/assets/qrcode.jpg', 158, 190, 210, 210);
+        ctx.drawImage('../../static/assets/qrbg.png', 0, 0, 545, 771);
 
         /* 绘制文字 位置自己计算 参数自己看文档 */
         ctx.setTextAlign("center"); //  位置
         ctx.setFillStyle("#ffffff"); //  颜色
         ctx.setFontSize(22); //  字号
-        ctx.fillText("长按保存到本地", 545 / 2, 130); //  内容  不会自己换行 需手动换行
-        ctx.fillText("分享给朋友", 545 / 2, 160); //  内容
+        // ctx.fillText("长按保存到本地", 545 / 2, 130); //  内容  不会自己换行 需手动换行
+        // ctx.fillText("分享给朋友", 545 / 2, 160); //  内容
         /* 绘制 */
         ctx.stroke();
         ctx.draw();
-      });
+
+        
     },
     preventTouchMove() {
       this.showModal = false;
+    },
+    onPreview () {
+        var arr = [this.shareImagePath]
+        wx.previewImage({
+            current: 0, 
+            urls: arr
+        })
     }
+
   }
 };
 </script>
@@ -243,13 +253,13 @@ canvas{
 
 .modalDlg {
   width: 580rpx;
-  height: 680rpx;
+  height: 771rpx;
   position: fixed;
   top: 50%;
   left: 0;
   z-index: 99999999999;
   margin: -370rpx 85rpx;
-  background-color: #fff;
+  /* background-color: #fff; */
   border-radius: 12rpx;
   display: flex;
   flex-direction: column;

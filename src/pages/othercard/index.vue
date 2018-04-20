@@ -15,7 +15,7 @@
 					<div class="weui-uploader">
 						<div class="weui-uploader__bd">
 							<div class="weui-uploader__files" id="uploaderFiles">
-								<div v-for="item in files" :key="index">
+								<div v-for="(item , index) in files" :key="index">
 									<div class="weui-uploader__file" :id = 'index'   @click="previewImage(index)">
 										<image class="weui-uploader__img" :src="item" mode="aspectFill" />
 									</div>
@@ -135,13 +135,9 @@
 					})
 				},
 				previewImage(e) {
-			      var arr = []
-			      this.files.map(item => {
-			        arr.push(item.imgUrl)
-			      })
 			      wx.previewImage({
-			        current: e, // 当前显示图片的http链接
-			        urls: this.files // 需要预览的图片http链接列表
+			        current: this.files[e], 
+			        urls: this.files
 			      })
 			    }
 			}
