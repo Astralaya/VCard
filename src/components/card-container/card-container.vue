@@ -1,7 +1,7 @@
 <template>
 	<div class="card-container" >
     <!-- 信息部分 -->
-    <img class="card-background" :src="userCard.strAvatarUrl ? userCard.strAvatarUrl : '../../static/assets/head.png'"/>
+    <img class="card-background" :src="userCard.strBackground ? userCard.strBackground : '../../static/assets/head.png'"/>
     <div class="card-content"  >
       <!-- 名片上半部分 -->
       <div class="card-content-top panel__bd card-content-border">
@@ -39,7 +39,7 @@
   <!-- 工具栏部分 -->
   <div class="card-toolbar ">
     <div class="weui-grids">
-      <block v-for="item in grids" :key="index">
+      <block v-for="(item,index) in grids" :key="index">
         <navigator class="card-toolbar-grid" hover-class="weui-grid_active" @click="tabClick(item)">
           <image class="weui-grid__icon" :src="item.icon" />
           <div class="weui-grid__label">{{ item.title }}({{item.num}})</div>

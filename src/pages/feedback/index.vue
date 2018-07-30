@@ -4,7 +4,7 @@
 		<div class="weui-cells weui-cells_after-title">
 			<div class="weui-cell">
 				<div class="weui-cell__bd">
-					<textarea class="" placeholder="请输入您要反馈的内容" style="height: 10.3em" v-model="feedbackText"/>
+					<textarea class="" placeholder="请输入您要反馈的内容" style="height: 10.3em" v-model="form.strContent"/>
 				</div>
 			</div>
 		</div>
@@ -22,7 +22,9 @@
 	export default {
 		data () {
 			return {
-				feedbackText: ''
+				form: {
+					strContent: ''
+				}
 			}
 		},
 		computed: {
@@ -34,8 +36,23 @@
 			
 		},
 		methods: {
-			saveForm() {
-
+			async saveForm() {
+				var _this = this;
+				if(this.form.strContent == '') {
+					api.wxToast({
+						title: '反馈内容不能为空'
+					})
+					return
+				}
+				this.form = Object.assign(this.form , { 'strOpenId' : this.userInfo.strOpenId })
+				const res = await api.post_feedback(this.form)
+				setTimeout(() => {
+					_this.$router.open({
+						name: "个人中心",
+						url: "../person/person",
+						type: "TAB"
+					});
+				}, 2000);
 			}
 		}
 	}

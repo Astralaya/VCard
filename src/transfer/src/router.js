@@ -1,7 +1,7 @@
 import config from '../../main'
  
-
-export default  {
+ 
+export default  { 
 	install (Vue, options) {
 		Vue.prototype.$router = {
 	        // 保留当前页面，再新打开
@@ -19,7 +19,6 @@ export default  {
 		              url: options.url + strPar,
 		              name: options.name,
 		              type: options.type
-
 		            })
 	        	} else if (options.type == 'NEW') {
 	        		wx.redirectTo({
@@ -32,7 +31,7 @@ export default  {
 	        	}
 	        },
 	        back () {
-	        
+				
 	        },
 	        getParams () {
 	            return new Promise((resolve, reject) => {

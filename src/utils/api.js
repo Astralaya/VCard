@@ -6,10 +6,14 @@ let api = {
     return new Promise((resolve , reject) => {
       wx.getImageInfo({
         src: options.src,
-        success: res => resolve(res)
+        success: res => resolve(res),
+        fail: err => {
+          reject(err)
+        }
       })
     })
   },
+  
   // 打开地图
   wxOpenLocation: (options) => {
     wx.openLocation({
@@ -37,7 +41,6 @@ let api = {
   //  ,传strId是修改，不传是新增 intType : 1 头像 2用户展示图片 
   wxUploadFile: (options) => {
     return new Promise((resolve, reject) => {
-      console.log(options)
       if (options.filePath) {
         wx.uploadFile({
           url: axios.domain + '/Upload/UpLoadImgs',
@@ -45,7 +48,6 @@ let api = {
           name: 'file',
           formData: options.formData,
           success: res => {
-            console.log(res)
             var res = JSON.parse(res.data)
             if (res.success) {
               resolve(res.data)
@@ -70,7 +72,6 @@ let api = {
         itemList: itemList,
         success: res => resolve(res.tapIndex),
         fail: function (res) {
-          console.log(res.errMsg)
         }
       })
     })
@@ -107,14 +108,12 @@ let api = {
   wxDownloadFile: (strUrl) => {
 
     return new Promise((resolve, reject) => {
-      console.log(strUrl)
       wx.downloadFile({
         url: strUrl,
         success: function (res) {
           resolve(res.tempFilePath)
         },
         fail: function (err) {
-          console.log(err)
         }
       })
     })
@@ -170,9 +169,9 @@ let api = {
     url: '/Upload/UpLoadImgs'
   }),
   // 获取微信的OpenId，js_code必传
-  wxOpenId: (code) => axios.postApiData({
+  wxOpenId: (data) => axios.postApiData({
     data: {
-      js_code: code
+      'js_code' : data
     },
     url: '/WeChat/GetOpenId'
   }),
@@ -180,7 +179,7 @@ let api = {
   // Get_UserInfo: (data) => axios.getAjaxData(data , 'Get_UserInfo'),
   Get_UserInfo: (data) => axios.getAjaxData(data, undefined, 'ae2bdd9f-a5d2-4110-b01e-c66e2e10d105'),
   // 登录(可修改信息)接口,strOpenId必传
-  post_login: (data) => axios.getAjaxData(data, undefined, '7b950fca-716c-46e2-8a2f-ae753fb72bfe'),
+  post_login: (data) => axios.getAjaxData(Object.assign(data, api.get_appId), undefined, '7b950fca-716c-46e2-8a2f-ae753fb72bfe'),
   // 排行榜
   get_rankingList: (data) => axios.getAjaxData(data, undefined, 'fc2d9e61-0139-4785-a2c8-ffbd7b8127ec'),
   // 查看他人名片 strOpenId_c 当前用户openId(本人) 	, strOpenId_b 操作对象
@@ -191,17 +190,29 @@ let api = {
   get_likeList: (data) => axios.getAjaxData(data, 'Get_InteractionDetail'),
   // 看过的列表，type：1人气，2点赞，3收藏
   get_card_List: (data) => axios.getAjaxData(data, undefined, 'db6dab05-b6ea-48f4-8e4d-60a9b4278b90'),
+  // 反馈
+  post_feedback: (data) => axios.getAjaxData(data, undefined, '139d5995-8cde-4992-b9b4-25a8f1f49042'),
+  // 获取文章列表
+  get_PropagandaColumn: (data) => axios.getAjaxData(data, 'Get_PropagandaColumn' , undefined),
+  // 通话记录
+  post_Call: (data) => axios.getAjaxData(data, undefined, '2334e2da-c1b8-423b-b90b-3d0d0cf21c53') ,
+  // 查看通话记录
+  get_CallLog: (data) => axios.getAjaxData(data, 'Get_CallLog' ),
   // 小程序登录网页
   get_author_login: (data) => axios.postApiData({
     data,
     url: '/Mobile/GetData/ConAuthorTest'
   }),
+  get_data: (data) => axios.getApiData(data),
+  get_qrCode: (data) => axios.getQrCode(data),
   // 是否是已经审核通过
   // get_isOnline : (data) => {}
   // 入驻企业
   post_company_save: (data) => axios.getAjaxData(data, undefined, '5d9fe3c1-9e7a-4e26-933d-408aea4e56b7'),
   // 加载企业名录
-  get_company_list: (data) => axios.getAjaxData(data, undefined, 'aafe4c37-8e66-458e-8402-85f32b1e53c3')
+  get_company_list: (data) => axios.getAjaxData(data, undefined, 'aafe4c37-8e66-458e-8402-85f32b1e53c3'),
+  // appid
+  get_appId : { 'smallAppId': 'wx9c20c7365b5c702f', 'smallAppSecret' : 'c210590b385d59b529ce3f39e430f250' }
 }
 
 export default api

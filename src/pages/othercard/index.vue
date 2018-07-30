@@ -76,31 +76,33 @@
 			}
 		},
 		mounted () {
+			this.files = []
 			this.getUserInfo()
 		},
 		onPullDownRefresh () {
+			this.files = []
 			this.getUserInfo()
 		},
 		methods: {
 			async getUserInfo () {
 				var _this =this
 				var otherUser = this.$root.$mp.query;
-				_this.files = []
-				var par = {
+				var par = { 
 					strOpenId_c : this.userInfo.strOpenId,
-					strOpenId_b   : otherUser.strOpenId
+					strOpenId_b : otherUser.scene ? otherUser.scene :  otherUser.strOpenId
 				}
 	
-				wx.showLoading({title:'加载中'})
 				var data = await api.get_otherCard(par);
 
 				this.cardInfo = data
-				data.images.map(item => {
-					var item = item.map
-					var urlPath = item.strUrl + '/' + item.strFilePath + '/'  + item.strFileName
-					_this.files.push(urlPath)
-				})
-				wx.hideLoading()
+				if(_this.files.length === 0) {
+					data.images.map(item => {
+						var item = item.map
+						var urlPath = item.strUrl + '/' + item.strFilePath + '/'  + item.strFileName
+						_this.files.push(urlPath)
+					})
+				}
+				
 				wx.stopPullDownRefresh()
 
 			},

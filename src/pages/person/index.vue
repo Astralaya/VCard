@@ -67,21 +67,9 @@
           my: true
         }],
         pageList: [{
-          title: '帮助中心',
-          url: '../feedback/feedback',
-          type: 1
-        },{
           title: '反馈问题',
           url: '../feedback/feedback',
           type: 2
-        },{
-          title: '关于',
-          url: '../feedback/feedback',
-          type: 3
-        },{
-          title: '文章列表',
-          url: '../news/news',
-          type: 4
         }]
       }
     },
@@ -101,7 +89,7 @@
         var info = {
           type : item.type,
           title: item.title,
-          isMy: item.my
+          isMy: false
         }
         this.$router.open({
           name: '名片列表',

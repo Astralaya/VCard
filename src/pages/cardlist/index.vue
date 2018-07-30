@@ -1,6 +1,6 @@
 <template>
 	<div class="page">
-		<div class="weui-cells weui-cells_after-title" v-for="(item , index) in list" v-if="pageType">
+		<div class="weui-cells weui-cells_after-title" v-for="(item , index) in list" v-if="pageType" :key="index">
 			<div class=" weui-cell_access" hover-class="weui-cell_active">
 				<div class="weui-cell">
 					<div class="weui-cell__hd" style="position: relative;margin-right: 10px;" @click="goOtherCard(item)">
@@ -19,39 +19,6 @@
 				</div>
 			</div>
 		</div>
-
-		<div class="weui-cells weui-cells_after-title" v-for="(item , index) in list" v-if="!pageType">
-			<div class="card-list-top">
-
-			</div>
-			<div>
-				<navigator class="weui-cell_access" hover-class="weui-cell_active" @click="goOtherCard(item)">
-					<div class="weui-cell">
-						<div class="weui-cell__hd" style="position: relative;margin-right: 10px;">
-							<image class="card-list-avator" :src="item.strName" />
-							<div class="weui-badge" style="position: absolute;top: -.4em;right: -.4em;">{{index}}</div>
-						</div>
-						<div class="weui-cell__bd">
-							<div>{{ item.strName }}
-								<text class="card-list-joy">{{ item.strPosition }}</text>
-							</div>
-							<div style="font-size: 13px;color: #888888;">{{ item.strIntro }}</div>
-						</div>
-					</div>
-					<div class="weui-flex">
-						<div class="weui-flex__item">
-							<div class="placeholder">
-								{{ item.strCompany }}
-							</div>
-						</div>
-						<div>
-							<div class="placeholder">距离 1058.47km</div>
-						</div>
-					</div>
-				</navigator>
-			</div>
-		</div>
-
 	</div>
 
 </template>
@@ -91,7 +58,8 @@ export default {
     async getData() {
       const _this = this;
       const userInfo = store.state.userInfo;
-      if (_this.routerPar.isMy == "true") {
+      
+      if (_this.routerPar.isMy == 'true') {
         var par = {
           "@type": this.type,
           "@rowIndex": this.rowIndex,
@@ -104,15 +72,28 @@ export default {
           "@strOpenId_c": userInfo.strOpenId
         };
       }
+      if(this.type === 4) {
+        var par = {
+          "@callFrom": userInfo.strName,
+          "@rowIndex": this.rowIndex
+        }
+        var data = await api.get_CallLog(par)
+        var list = data.dgData   
+        list.map(item => {
+          item.strOpenId = item.strOpenId_b
+          _this.list.push(item);
+        })
 
-      var data = await api.get_card_List(par);
-      try {
+      } else {
+        var data = await api.get_card_List(par);  
         var list = data.data;
         list.map(item => {
           _this.list.push(item.map);
         });
-        this.intCount = parseInt(data.data.intCount);
-      } catch (error) {}
+      }
+      
+        
+    
     },
     loadMore() {
       this.rowIndex++;

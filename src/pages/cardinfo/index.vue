@@ -9,6 +9,7 @@
         </div>
       </navigator>
     </div>
+    
     <div class="weui-cells__title">基础资料</div>
     <div class="weui-cells weui-cells_after-title">
       <div class="weui-cell weui-cell_input">
@@ -51,6 +52,12 @@
           <input class="weui-input" placeholder="职位" v-model="userInfo.strPosition" />
         </div>
       </div>
+      <div class="weui-cell weui-cell_input" @click="modifiyBackground" style="padding-top:10px;padding-bottom:10px;">
+          <div class="weui-cell__hd">背景图片</div>
+          <div class="weui-cell__bd ">
+            <image class="weui-cell__ft modifiy-userAvatar" style="float:right;display:block;" :src="userInfo.strBackground" />
+          </div>
+      </div>
     </div>
 
     <div class="weui-cells__title">简介</div>
@@ -62,6 +69,7 @@
         </div>
       </div>
     </div>
+    
 
     <div class="weui-cells__title">产品上传</div>
     <div class="weui-cells weui-cells_after-title">
@@ -80,7 +88,7 @@
                   </div>
                 </div>
               </div>
-              <div class="weui-uploader__input-box">
+              <div class="weui-uploader__input-box" v-if="files.length < 8">
                 <div class="weui-uploader__input" @click="chooseImage"></div>
               </div>
             </div>
@@ -133,17 +141,14 @@ export default {
     },
     chooseImage(strId) {
       var _this = this;
-      var count = 8 - this.files.length;
-      if(strId) {
-        count = 1
-      }
+      var count = 8 - this.files.length
       wx.chooseImage({
         count: count,
         sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
         sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
         success: function(res) {
           res.tempFilePaths.map(item => {
-            _this.uploaderFiles(item);
+            _this.uploaderFiles(item , strId)
           });
         },
         fail: function() {},
@@ -170,22 +175,27 @@ export default {
           formData: par
         })
         .then(res => {
-          if (strId) {
+          if (typeof strId === 'number') {
             _this.files.map((item, index) => {
-              if (item.strId === strId) {
+              if (item.id === strId) {
                 _this.files[index].imgUrl = res.imgUrl;
               }
+              
             });
           } else {
-            _this.files = _this.files.concat(res.imgUrl);
+            _this.files = _this.files.concat(res);
           }
         });
     },
     async delImage(par) {
       var res = await api.del_Image(par);
       if (res.success) {
-        console.log(this.files);
+        for (let i = 0; i < this.files.length; i++) {
+          const element = this.files[i];
+          if(element.id == par.strId) this.files.splice(i,1)
+        }
       } else {
+
       }
       api.wxToast({ title: res.msg });
     },
@@ -225,7 +235,6 @@ export default {
           type: "TAB"
         });
       } catch (error) {
-        console.log(error);
       }
     },
     longtap(item) {
@@ -251,17 +260,17 @@ export default {
         sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
         sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
         success: function(res) {
-          _this.upDateHead(res.tempFilePaths[0]);
+          _this.upDateHead(res.tempFilePaths[0], 1);
         },
         fail: function() {},
         complete: function() {}
       });
     },
-    upDateHead(localImage) {
+    upDateHead(localImage, type) {
       const _this = this;
       var par = {
         strOpenId: this.userInfo.strOpenId,
-        intType: 1
+        intType: type
       };
       api
         .wxUploadFile({
@@ -269,8 +278,25 @@ export default {
           formData: par
         })
         .then(res => {
-          _this.userInfo.strAvatarUrl = res.imgUrl;
+          if (type == 1) {
+            _this.userInfo.strAvatarUrl = res.imgUrl;
+          } else {
+            _this.userInfo.strBackground = res.imgUrl;
+          }
         });
+    },
+    modifiyBackground() {
+      var _this = this;
+      wx.chooseImage({
+        count: 1,
+        sizeType: ["original", "compressed"], // 可以指定是原图还是压缩图，默认二者都有
+        sourceType: ["album", "camera"], // 可以指定来源是相册还是相机，默认二者都有
+        success: function(res) {
+          _this.upDateHead(res.tempFilePaths[0], 3);
+        },
+        fail: function() {},
+        complete: function() {}
+      });
     }
   }
 };

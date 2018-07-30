@@ -29,7 +29,7 @@
         </div>
 
         <div class="weui-btn-area sub">
-            <button class="weui-btn btn-defalut" hover-class="btn-hover" @click="onShare">分享</button>
+            <button class="weui-btn btn-defalut" hover-class="btn-hover" v-if="showShareBtn" @click="onShare">分享</button>
         </div>
 
         <div class="weui-cells__title" style="height: 20rpx;"></div>
@@ -78,7 +78,8 @@ export default {
       ],
       showShareBtn: false,
       showModal: false,
-      shareImagePath: ""
+      shareImagePath: "",
+      qrCode: ''
     };
   },
   mounted() {
@@ -95,10 +96,6 @@ export default {
   onShareAppMessage(res) {
     const strOpenId = this.userInfo.strOpenId;
     const userName = this.userInfo.strName;
-    if (res.from === "button") {
-      // 来自页面内转发按钮
-      console.log(res.target);
-    }
     return {
       title: `${userName}的名片`,
       path: `pages/othercard/othercard?strOpenId=${strOpenId}`,
@@ -118,8 +115,11 @@ export default {
         strOpenId: openId
       };
       const data = await api.post_login(par);
+      
       store.commit("inUserInfo", data);
+      this.userInfo = data
       _this.showShareBtn = store.state.inSendBtn;
+      // _this.onShow()
       // 停止下拉刷新
       wx.stopPullDownRefresh();
     },
@@ -164,37 +164,73 @@ export default {
         wx.canvasToTempFilePath({
             x: 0,
             y: 0,
-            width: 545,
-            height: 771,
-            destWidth: 240,
-            destHeight: 340,
+            width: 540,
+            height: 687,
+            destWidth: 540,
+            destHeight: 687,
             canvasId: "myCanvas",
             success: function(res) {
               _this.shareImagePath = res.tempFilePath;
             },
             fail: function(res) {
-              console.log(res);
             }
           });
     },
-    onShow() {
-      var _this = this;
+    async onShow() {
+        const _this = this;
+        if(this.qrCode == '') {
+          const qrCode = await api.get_qrCode({
+              url: 'pages/othercard/othercard',
+              scene: this.userInfo.strOpenId
+          })
+          this.qrCode = qrCode.url
+        }
+        Promise.all([api.wxGetImageInfo({src : this.qrCode}) , api.wxGetImageInfo({src : this.userInfo.strAvatarUrl})]).then(res => {
+            _this.drawCanvas(res)
+        }).catch(err => {
+            _this.drawCanvas()
+        })
+            
+    },
+    drawCanvas (res) {
+        var res = res ? res : []
+        const _this =this;
+        const headImage = res[1].path
+        const qrCodeImage = res[0].path
         const ctx = wx.createCanvasContext("myCanvas");
-      
-        ctx.drawImage('../../static/assets/qrcode.jpg', 158, 190, 210, 210);
-        ctx.drawImage('../../static/assets/qrbg.png', 0, 0, 545, 771);
-
-        /* 绘制文字 位置自己计算 参数自己看文档 */
-        ctx.setTextAlign("center"); //  位置
-        ctx.setFillStyle("#ffffff"); //  颜色
-        ctx.setFontSize(22); //  字号
-        // ctx.fillText("长按保存到本地", 545 / 2, 130); //  内容  不会自己换行 需手动换行
-        // ctx.fillText("分享给朋友", 545 / 2, 160); //  内容
-        /* 绘制 */
-        ctx.stroke();
-        ctx.draw();
-
-        
+            // 头部
+            ctx.setFillStyle('#f8f8f8')
+            ctx.fillRect(0, 0, 545, 176);
+            ctx.drawImage( headImage,  28, 24, 116, 116);
+            /* 绘制文字 */
+            ctx.setFontSize(23)
+            ctx.setFillStyle('#333333')
+            ctx.fillText(this.userInfo.strName, 170, 58)
+            ctx.setFontSize(20)
+            ctx.setFillStyle('#999999')
+            ctx.fillText(this.userInfo.strPosition, 170, 94)
+            const len = this.userInfo.strIntro.length;
+            const strArr = this.userInfo.strIntro.split('')
+            let strIntro = ''
+            strArr.map((item , index) => {
+                if(index < 15) {
+                    strIntro += item
+                }else  if (index == 15) {
+                    strIntro += '......'
+                }
+            })
+            ctx.fillText(strIntro, 170, 128)
+            // 底部
+            ctx.setFillStyle('white')
+            ctx.fillRect(0, 176, 540, 510);
+            ctx.setFontSize(24)
+            ctx.setFillStyle('#999999')
+            ctx.fillText('不用面对面也能递交名片的神器', 105, 637)
+            ctx.drawImage(qrCodeImage, 90, 215, 360 , 360);
+            /* 绘制 */
+            ctx.stroke();
+            ctx.draw();
+            this.showShareBtn = true
     },
     preventTouchMove() {
       this.showModal = false;
@@ -252,13 +288,13 @@ canvas{
 }
 
 .modalDlg {
-  width: 580rpx;
-  height: 771rpx;
+  width: 545rpx;
+  height: 687rpx;
   position: fixed;
   top: 50%;
   left: 0;
   z-index: 99999999999;
-  margin: -370rpx 85rpx;
+  margin: -375rpx 100rpx;
   /* background-color: #fff; */
   border-radius: 12rpx;
   display: flex;

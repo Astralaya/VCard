@@ -1,10 +1,10 @@
 <template>
-  <a class="news-item" :href="news.link" v-if="!news.lapinid">
-    <img class="news-img" :src="news.image" mode="aspectFill">
+  <a class="news-item" @click="goto(news)">
+    <img class="news-img" :src="news.strTitleUrl" mode="aspectFill">
     <div class="news-text">
-      <div class="news-title">{{news.title}}</div>
+      <div class="news-title">{{news.strTitle}}</div>
       <div class="news-info">
-        <text>{{news.postdate}}</text>
+        <text>{{news.dCreateTime}}</text>
       </div>
     </div>
   </a>
@@ -17,8 +17,13 @@ export default {
       type: Object,
       default: {}
     }
+  },
+  methods: {
+    goto(item) {
+      this.$emit("linkClick", item);
+    }
   }
-}
+};
 </script>
 
 <style>
@@ -42,6 +47,11 @@ export default {
 }
 .news-title {
   font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 .news-info {
   color: #aaa;

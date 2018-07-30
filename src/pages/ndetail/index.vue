@@ -27,45 +27,31 @@ export default {
     }
   },
   computed: {
-    commentHref () {
-      return `/pages/ncomment/ncomment?id=${this.id}`
-    }
+    
+  },
+  onPullDownRefresh () {
+    this.getData()
   },
   mounted () {
-    this.id = this.$root.$mp.query.id
-    this.title = this.$root.$mp.query.title
-    this.getNews()
-    // this.getRelatedNews()
+    this.getData()
   },
   onUnload () {
-    this.show = false
   },
   methods: {
-    async getNews () {
-      wx.showNavigationBarLoading()
-      let { id } = this
-      id = `${id.slice(0, 3)}/${id.slice(3, 6)}`
-      const news = detail
-      const parsedNews = xml2json(news).rss.channel.item
-      this.news = {
-        newssource: parsedNews.newssource['#text'],
-        detail: parsedNews.detail['#text'].replace(/<img/g, '<img width="100%"'),
-        newsauthor: parsedNews.newsauthor['#text']
+    async getData() {
+      const obj = this.$root.$mp.query
+      var _this = this;
+      var par = {
+        '$rowIndex': 1,
+        '$id' : obj.id
       }
-      wx.hideNavigationBarLoading()
-      this.show = true
-    },
-    async getRelatedNews () {
-      const newslist = await api.getRelatedNews(this.id)
-      const parsedNews = JSON.parse(newslist.replace('var tag_jsonp =', ''))
-      this.relatedNews = parsedNews.map(news => {
-        return {
-          title: news.newstitle,
-          image: news.img,
-          link: `/pages/ndetail/ndetail?id=${news.newsid}&title=${news.newstitle}`,
-          postdate: news.postdate
-        }
-      })
+      const res = await api.get_PropagandaColumn(par)
+      var item = res.dgData[0]
+      this.title = item.strTitle
+      this.news.newsauthor = item.dCreateTime
+      this.news.newssource = item.strName
+      this.news.detail = item.strContent
+      wx.stopPullDownRefresh();
     }
   }
 }

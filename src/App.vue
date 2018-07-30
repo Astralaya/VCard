@@ -1,6 +1,7 @@
 <script>
 import api from "@/utils/api";
 import store from "@/store/store";
+import config from './main.js'
 
 export default {
   onLoad() {},
@@ -9,22 +10,17 @@ export default {
     this.wxLogin();
   },
   methods: {
-    async wxLogin() {
+    async wxLogin() { 
       var wxCode = await api.wxLogin();
-      var openId = await api.wxOpenId(wxCode.code);
+      
+      var openId = await api.wxOpenId(wxCode.code,);
       var openIdCode = openId.openid;
-      var strAppId = openId.strAppId;
       var par = {
-        strOpenId: openIdCode,
-        strAppId: strAppId
+        'strOpenId': openIdCode
       };
       store.commit("inSendBtn", openId.isSend);
       try {
-        // 暂时默认都是已经登陆过的用户
-        var alreadyRegistered = true;
-
         var userInfo = await api.wxGetUserInfo();
-
         // 如果不是老用户，添加姓名和头像
         if (!openId.isOld) {
           par = Object.assign(par, {
@@ -33,6 +29,9 @@ export default {
           par = Object.assign(par, {
             strAvatarUrl: userInfo.userInfo.avatarUrl
           });
+          par = Object.assign(par , {
+            strBackground : userInfo.userInfo.avatarUrl
+          })
         }
         this.loginFn(par);
       } catch (ex) {
@@ -41,6 +40,7 @@ export default {
     },
     async loginFn(par) {
       var data = await api.post_login(par);
+      
       store.commit("inUserInfo", data);
       store.commit("inOpenId", par.strOpenId);
     }
